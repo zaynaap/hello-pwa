@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Hello? – Mobile Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="device-frame">
+    <header class="appbar">
+      <div class="brand">
+        <span class="logo">?</span>
+        <span>Hello?</span>
+      </div>
+      <button id="langToggle" class="ghost">EN</button>
+    </header>
+
+    <main id="router">
+      <!-- Screen: Home / Role Select -->
+      <section class="screen active" id="home">
+        <div class="pad">
+          <h1 data-i18n="home_title">Home / Role Select</h1>
+          <div class="card">
+            <div class="field">
+              <label data-i18n="login_mobile">Login: Mobile</label>
+              <input type="tel" placeholder="+91 9XXXXXXXXX" id="mobileInput"/>
+            </div>
+            <button class="primary" id="otpBtn" data-i18n="get_otp">Get OTP</button>
+            <div class="row gap">
+              <button class="chip" data-route="employer" data-i18n="give_work">Kaam Dena</button>
+              <button class="chip" data-route="worker" data-i18n="take_work">Kaam Lena</button>
+            </div>
+            <button class="link" id="refBtn" data-i18n="referral">Referral</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen: Employer Post Job -->
+      <section class="screen" id="employer">
+        <div class="pad">
+          <h1 data-i18n="emp_post">Employer: Post Job</h1>
+          <div class="card">
+            <div class="field"><label data-i18n="skill">Skill</label><input placeholder="Plumber, Mason, Painter"/></div>
+            <div class="field"><label data-i18n="location">Location</label><input placeholder="Area / City"/></div>
+            <div class="row">
+              <div class="field half"><label data-i18n="date">Date</label><input type="date"/></div>
+              <div class="field half"><label data-i18n="time">Time</label><input type="time"/></div>
+            </div>
+            <div class="row">
+              <div class="field half"><label data-i18n="budget">Budget (₹)</label><input type="number" min="0"/></div>
+              <div class="field half"><label data-i18n="duration">Duration</label><input placeholder="e.g. 1 day"/></div>
+            </div>
+            <div class="field"><label data-i18n="notes">Notes / Photos (optional)</label><textarea rows="2"></textarea></div>
+            <button class="primary" id="toPay" data-i18n="post_job">Post & Continue</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen: Employer Pay & Escrow -->
+      <section class="screen" id="pay">
+        <div class="pad">
+          <h1 data-i18n="emp_pay">Employer: Pay & Escrow</h1>
+          <div class="card">
+            <div class="summary">
+              <div><strong data-i18n="job_summary">Job</strong><span id="jobStub">Plumber • 1 day</span></div>
+              <div><strong data-i18n="amount">Amount</strong><span>₹ 1,500</span></div>
+            </div>
+            <div class="row gap">
+              <button class="chip" onclick="toast('UPI Selected')">UPI</button>
+              <button class="chip" onclick="toast('Card Selected')" >Card</button>
+              <button class="chip" onclick="toast('Wallet Selected')">Wallet</button>
+            </div>
+            <button class="primary" id="lockEscrow" data-i18n="lock_escrow">Lock Money in Escrow</button>
+            <div class="muted" data-i18n="invite_auto">Invite Workers / Auto‑Match</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen: Employer Review & Release -->
+      <section class="screen" id="review">
+        <div class="pad">
+          <h1 data-i18n="emp_review">Employer: Review & Release</h1>
+          <div class="card">
+            <div class="info">
+              <div><strong data-i18n="otp_in">Start: OTP-In shown</strong></div>
+              <div><strong data-i18n="proof">Worker Proof: Photos/Notes</strong></div>
+            </div>
+            <div class="row gap">
+              <button class="primary" onclick="openModal('approveModal')"><span data-i18n="approve_release">Approve & Release</span></button>
+              <button class="ghost" onclick="openModal('askFixModal')"><span data-i18n="ask_fix">Ask Fix</span></button>
+            </div>
+            <div class="muted" data-i18n="auto_release">If no action 24h → Auto‑Release</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen: Worker Setup & Nearby Jobs -->
+      <section class="screen" id="worker">
+        <div class="pad">
+          <h1 data-i18n="worker_setup">Worker: Setup & Nearby Jobs</h1>
+          <div class="card">
+            <div class="field"><label data-i18n="add_skills">Add Skills + Daily Rate</label><input placeholder="e.g. Painter • ₹900/day"/></div>
+            <div class="field"><label data-i18n="set_location">Set Location / Radius</label><input placeholder="2–5 km"/></div>
+            <div class="row gap">
+              <button class="chip" onclick="toggleHunger(this)" id="hungerBtn" data-i18n="hunger">I’m Available</button>
+            </div>
+            <div class="list" id="jobsList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen: Worker Accept & Start -->
+      <section class="screen" id="accept">
+        <div class="pad">
+          <h1 data-i18n="worker_accept">Worker: Accept & Start</h1>
+          <div class="card">
+            <div class="route">📍 <span data-i18n="route_details">Job details + route</span></div>
+            <button class="primary" onclick="openModal('otpInModal')"><span data-i18n="start_with_otp">Start with OTP‑In</span></button>
+            <div class="muted" data-i18n="timer">Timer / Checklist</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen: Complete → Cashout -->
+      <section class="screen" id="cashout">
+        <div class="pad">
+          <h1 data-i18n="complete_cashout">Complete → Cashout</h1>
+          <div class="card">
+            <button class="primary" onclick="openModal('otpOutModal')"><span data-i18n="mark_complete">Mark Complete (OTP‑Out)</span></button>
+            <div class="field"><label data-i18n="upload_proof">Upload 2–3 Photos as Proof</label><input type="file" multiple /></div>
+            <button class="primary" onclick="toast('Payment Released to Wallet')"><span data-i18n="release_wallet">Release to Wallet</span></button>
+            <button class="ghost" onclick="toast('Cashout to UPI / Bank')"><span data-i18n="cashout_upi">Cashout to UPI / Bank</span></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen: Dispute Center -->
+      <section class="screen" id="dispute">
+        <div class="pad">
+          <h1 data-i18n="dispute_center">Dispute Center</h1>
+          <div class="card">
+            <div class="field"><label data-i18n="reason">Raise Dispute / Reason</label><input placeholder="Describe the issue"/></div>
+            <button class="ghost" onclick="openModal('chatModal')"><span data-i18n="chat_reupload">Chat + Re‑upload Evidence</span></button>
+            <div class="muted" data-i18n="support_decision">Support Decision: Partial/Full</div>
+            <div class="muted" data-i18n="rating_both">Rating Both Sides</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab active" data-route="home">🏠</button>
+      <button class="tab" data-route="employer">🧑‍💼</button>
+      <button class="tab" data-route="worker">🧰</button>
+      <button class="tab" data-route="accept">✅</button>
+      <button class="tab" data-route="cashout">💸</button>
+      <button class="tab" data-route="dispute">⚖️</button>
+    </nav>
+
+    <!-- Generic Modal Container -->
+    <div id="overlay" class="overlay" onclick="closeModal(event)"></div>
+
+    <!-- Specific Modals -->
+    <div class="modal" id="otpModal">
+      <h3>Enter OTP</h3>
+      <input class="otp" maxlength="6" placeholder="______" />
+      <div class="row gap">
+        <button class="ghost" onclick="closeModal()">Cancel</button>
+        <button class="primary" onclick="toast('Logged in'); closeModal()">Verify</button>
+      </div>
+    </div>
+
+    <div class="modal" id="approveModal">
+      <h3>Approve & Release</h3>
+      <p>Release payment from escrow?</p>
+      <div class="row gap">
+        <button class="ghost" onclick="closeModal()">Back</button>
+        <button class="primary" onclick="toast('Released'); closeModal()">Approve</button>
+      </div>
+    </div>
+
+    <div class="modal" id="askFixModal">
+      <h3>Ask for Fix</h3>
+      <textarea rows="3" placeholder="Describe what needs fixing"></textarea>
+      <div class="row gap">
+        <button class="ghost" onclick="closeModal()">Cancel</button>
+        <button class="primary" onclick="toast('Sent to worker'); closeModal()">Send</button>
+      </div>
+    </div>
+
+    <div class="modal" id="otpInModal">
+      <h3>OTP‑In</h3>
+      <p>Employer OTP: <strong>482913</strong></p>
+      <button class="primary" onclick="toast('OTP-In verified'); closeModal()">Verify</button>
+    </div>
+
+    <div class="modal" id="otpOutModal">
+      <h3>OTP‑Out</h3>
+      <p>Worker OTP: <strong>736204</strong></p>
+      <button class="primary" onclick="toast('OTP-Out verified'); closeModal()">Verify</button>
+    </div>
+
+    <div class="modal" id="chatModal">
+      <h3>Support Chat</h3>
+      <div class="chat">
+        <div class="bubble other">Please upload proof.</div>
+        <div class="bubble me">Uploaded.</div>
+      </div>
+      <input type="file" />
+      <div class="row gap">
+        <button class="ghost" onclick="closeModal()">Close</button>
+        <button class="primary" onclick="toast('Message sent')">Send</button>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
